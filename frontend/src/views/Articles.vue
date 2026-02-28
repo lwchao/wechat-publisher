@@ -9,9 +9,6 @@ const statusMap = {
   draft: { label: '草稿', class: 'draft' },
   published: { label: '已发布', class: 'published' }
 }
-  draft: { label: 'Draft', class: 'draft' },
-  published: { label: 'Published', class: 'published' }
-}
 
 onMounted(async () => {
   await loadArticles()
@@ -65,7 +62,7 @@ const deleteArticle = async (id) => {
 
 const formatTime = (time) => {
   if (!time) return '-'
-  return new Date(time).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  return new Date(time).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 </script>
 
@@ -75,7 +72,6 @@ const formatTime = (time) => {
       <div>
         <h1 class="page-title">文章</h1>
         <p class="page-desc">管理您的发布内容</p>
-        <p class="page-desc">Manage your published content</p>
       </div>
       <button class="btn-primary" @click="$router.push('/generate')">
         <span>◈</span> 新建文章
@@ -102,11 +98,6 @@ const formatTime = (time) => {
             <th>状态</th>
             <th>更新时间</th>
             <th>操作</th>
-            <th>Author</th>
-            <th>Category</th>
-            <th>Status</th>
-            <th>Updated</th>
-            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
