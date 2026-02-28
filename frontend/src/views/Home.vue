@@ -10,6 +10,9 @@ const loading = ref(true)
 const quickActions = [
   { path: '/articles', label: '文章管理', icon: '📝', color: '#07c160' },
   { path: '/generate', label: 'AI生成', icon: '✨', color: '#722ed1' },
+]
+  { path: '/articles', label: '文章管理', icon: '📝', color: '#07c160' },
+  { path: '/generate', label: 'AI生成', icon: '✨', color: '#722ed1' },
   { path: '/git', label: 'Git操作', icon: '📦', color: '#1890ff' },
 ]
 

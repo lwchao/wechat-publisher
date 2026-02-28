@@ -10,6 +10,10 @@ const navItems = [
   { path: '/', label: '首页', icon: '🏠' },
   { path: '/articles', label: '文章', icon: '📝' },
   { path: '/generate', label: 'AI生成', icon: '✨' },
+]
+  { path: '/', label: '首页', icon: '🏠' },
+  { path: '/articles', label: '文章', icon: '📝' },
+  { path: '/generate', label: 'AI生成', icon: '✨' },
   { path: '/git', label: 'Git', icon: '📦' },
 ]
 

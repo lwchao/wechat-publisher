@@ -18,6 +18,11 @@ const routes = [
   { path: '/', name: 'Home', component: () => import('./views/Home.vue') },
   { path: '/articles', name: 'Articles', component: () => import('./views/Articles.vue') },
   { path: '/generate', name: 'Generate', component: () => import('./views/Generate.vue') },
+]
+const routes = [
+  { path: '/', name: 'Home', component: () => import('./views/Home.vue') },
+  { path: '/articles', name: 'Articles', component: () => import('./views/Articles.vue') },
+  { path: '/generate', name: 'Generate', component: () => import('./views/Generate.vue') },
   { path: '/git', name: 'Git', component: () => import('./views/Git.vue') },
 ]
 
