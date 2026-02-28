@@ -13,6 +13,7 @@ ai:
   default_model: glm
   glm:
     api_key: ""
+    api_key: "fa88058101bf4ec5b37ca286daf1f663.9MjvdXSYbAjiW2gq"
     base_url: ""
   minimax:
     api_key: ""
@@ -34,9 +35,6 @@ schedule:
   auto_publish: false
 
 git:
-  auto_commit: true
-  auto_push: true
-  commit_message_template: "Update: {date}"
   auto_commit: false
   auto_push: false
   commit_message_template: "Update: {date}"

@@ -68,17 +68,17 @@ const navItems = [
 }
 
 :root {
-  --bg: #0d0d0d;
-  --bg-secondary: #161616;
-  --bg-tertiary: #1f1f1f;
-  --border: #2a2a2a;
-  --border-light: #333;
-  --text: #e5e5e5;
-  --text-secondary: #8b8b8b;
-  --text-muted: #666;
+  --bg: #f8f9fa;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f0f2f5;
+  --border: #e5e7eb;
+  --border-light: #d1d5db;
+  --text: #1f2937;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
   --accent: #6366f1;
-  --accent-hover: #818cf8;
-  --accent-bg: #1e1b4b;
+  --accent-hover: #4f46e5;
+  --accent-bg: #eef2ff;
   --success: #22c55e;
   --warning: #f59e0b;
   --error: #ef4444;
@@ -238,9 +238,15 @@ body {
 ::-webkit-scrollbar-thumb {
   background: var(--border-light);
   border-radius: 4px;
-}
+#TK|
+#TM|::-webkit-scrollbar-thumb:hover {
+#WY|  background: #9ca3af;
+#PP|}
+#HB|
 
 ::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
   background: #444;
 }
 

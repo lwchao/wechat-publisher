@@ -51,7 +51,7 @@ class AIWriter:
         base_url = self._get_base_url() or 'https://open.bigmodel.cn/api/paas/v4'
         prompt = self._build_prompt(keyword, style, length, title)
         headers = {'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'}
-        data = {'model': 'glm-4', 'messages': [{'role': 'user', 'content': prompt}], 'temperature': 0.7}
+        data = {'model': 'glm-4-flash', 'messages': [{'role': 'user', 'content': prompt}], 'temperature': 0.7}
         resp = requests.post(f'{base_url}/chat/completions', headers=headers, json=data, timeout=120)
         if resp.status_code != 200:
             raise Exception(f"API 调用失败: {resp.text}")
