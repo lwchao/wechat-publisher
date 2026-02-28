@@ -4,8 +4,8 @@ import { ref, reactive } from 'vue'
 const form = reactive({
   keyword: '',
   title: '',
-  style: 'Technical Article',
-  length: 'Medium',
+  style: '技术文章',
+  length: '中等',
   model: 'glm'
 })
 
@@ -13,21 +13,21 @@ const generating = ref(false)
 const result = ref('')
 const showResult = ref(false)
 
-const styles = ['Technical Article', 'Blog Post', 'News', 'Tutorial']
+const styles = ['技术文章', '博客', '新闻', '教程']
 const lengths = [
-  { value: 'Short', label: 'Short (500-800 words)' },
-  { value: 'Medium', label: 'Medium (1000-1500 words)' },
-  { value: 'Long', label: 'Long (2000-3000 words)' }
+  { value: '短', label: '短 (500-800 字)' },
+  { value: '中等', label: '中等 (1000-1500 字)' },
+  { value: '长', label: '长 (2000-3000 字)' }
 ]
 const models = [
-  { value: 'glm', label: 'GLM (Zhipu)', color: '#6366f1' },
-  { value: 'qwen', label: 'Qwen (Alibaba)', color: '#f59e0b' },
+  { value: 'glm', label: 'GLM (智谱)', color: '#6366f1' },
+  { value: 'qwen', label: 'Qwen (阿里)', color: '#f59e0b' },
   { value: 'minimax', label: 'MiniMax', color: '#22c55e' }
 ]
 
 const handleSubmit = async () => {
   if (!form.keyword) {
-    alert('Please enter a keyword')
+    alert('请输入关键词')
     return
   }
   
@@ -44,13 +44,13 @@ const handleSubmit = async () => {
     })
     
     if (res.data.error) {
-      alert('Generation failed: ' + res.data.error)
+      alert('生成失败: ' + res.data.error)
     } else {
       result.value = res.data.content
       showResult.value = true
     }
   } catch (e) {
-    alert('Generation failed: ' + e.message)
+    alert('生成失败: ' + e.message)
   } finally {
     generating.value = false
   }
@@ -65,30 +65,30 @@ const saveArticle = async () => {
     })
     
     if (res.data.error) {
-      alert('Save failed: ' + res.data.error)
+      alert('保存失败: ' + res.data.error)
     } else {
-      alert('Saved!')
+      alert('保存成功!')
       result.value = ''
       showResult.value = false
       form.keyword = ''
       form.title = ''
     }
   } catch (e) {
-    alert('Save failed: ' + e.message)
+    alert('保存失败: ' + e.message)
   }
 }
 
 const copyContent = () => {
   navigator.clipboard.writeText(result.value)
-  alert('Copied!')
+  alert('已复制!')
 }
 </script>
 
 <template>
   <div class="generate-page">
     <div class="page-header">
-      <h1 class="page-title">◈ AI Generate</h1>
-      <p class="page-desc">Generate articles with AI</p>
+      <h1 class="page-title">◈ AI 生成</h1>
+      <p class="page-desc">使用 AI 生成文章</p>
     </div>
 
     <div class="generate-layout">
@@ -96,34 +96,34 @@ const copyContent = () => {
       <div class="form-card">
         <form @submit.prevent="handleSubmit">
           <div class="form-group">
-            <label>Keyword *</label>
+            <label>关键词 *</label>
             <input 
               v-model="form.keyword"
               type="text" 
-              placeholder="Enter topic keyword" 
+              placeholder="输入主题关键词" 
               required
             />
           </div>
 
           <div class="form-group">
-            <label>Title (optional)</label>
+            <label>标题 (可选)</label>
             <input 
               v-model="form.title"
               type="text" 
-              placeholder="Custom title"
+              placeholder="自定义标题"
             />
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label>Style</label>
+              <label>风格</label>
               <select v-model="form.style">
                 <option v-for="s in styles" :key="s" :value="s">{{ s }}</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label>Length</label>
+              <label>长度</label>
               <select v-model="form.length">
                 <option v-for="l in lengths" :key="l.value" :value="l.value">
                   {{ l.label }}
@@ -133,7 +133,7 @@ const copyContent = () => {
           </div>
 
           <div class="form-group">
-            <label>Model</label>
+            <label>模型</label>
             <div class="model-selector">
               <label 
                 v-for="m in models" 
@@ -156,7 +156,7 @@ const copyContent = () => {
             class="btn-generate"
             :disabled="generating"
           >
-            {{ generating ? '◈ Generating...' : '◈ Generate Article' }}
+            {{ generating ? '◈ 生成中...' : '◈ 生成文章' }}
           </button>
         </form>
       </div>
@@ -164,10 +164,10 @@ const copyContent = () => {
       <!-- Result -->
       <div v-if="showResult" class="result-card">
         <div class="result-header">
-          <h2>Generated Article</h2>
+          <h2>生成的文章</h2>
           <div class="result-actions">
-            <button class="btn-action" @click="copyContent">📋 Copy</button>
-            <button class="btn-action primary" @click="saveArticle">💾 Save</button>
+            <button class="btn-action" @click="copyContent">📋 复制</button>
+            <button class="btn-action primary" @click="saveArticle">💾 保存</button>
           </div>
         </div>
         <div class="result-content">

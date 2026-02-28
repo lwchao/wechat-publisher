@@ -8,6 +8,9 @@ const recentLogs = ref([])
 const loading = ref(true)
 
 const features = [
+  { title: 'AI 写作', desc: '使用 AI 生成文章', icon: '◈', link: '/generate', color: '#6366f1' },
+  { title: '文章管理', desc: '管理您的内容', icon: '◎', link: '/articles', color: '#22c55e' },
+]
   { title: 'AI Writing', desc: 'Generate articles with AI', icon: '◈', link: '/generate', color: '#6366f1' },
   { title: 'Article Management', desc: 'Manage your content', icon: '◎', link: '/articles', color: '#22c55e' },
 ]
@@ -42,7 +45,22 @@ const formatTime = (time) => {
 <template>
   <div class="home">
     <!-- Hero -->
-    <section class="hero">
+    <h1 class="hero-title">
+          更好的文章,<br/>
+          <span class="gradient-text">更好的发布</span>
+        </h1>
+        <p class="hero-desc">
+          AI 驱动的微信公众号文章生成和发布。
+          写作、生成、发布 — 尽在一处。
+        </p>
+        <div class="hero-actions">
+          <button class="btn-primary" @click="router.push('/generate')">
+            <span>◈</span> 开始生成
+          </button>
+          <button class="btn-secondary" @click="router.push('/articles')">
+            <span>◎</span> 查看文章
+          </button>
+        </div>
       <div class="hero-content">
         <h1 class="hero-title">
           Better articles,<br/>
@@ -68,7 +86,16 @@ const formatTime = (time) => {
             <span class="dot yellow"></span>
             <span class="dot green"></span>
           </div>
-          <pre class="code-block"># AI Generated Article
+          <pre class="code-block"># AI 生成文章
+
+## 引言
+Lorem ipsum dolor sit amet...
+
+## 主要内容
+More engaging content here...
+
+## 结论
+感谢阅读！</pre>
 
 ## Introduction
 Lorem ipsum dolor sit amet...
@@ -88,28 +115,28 @@ Thanks for reading!</pre>
         <div class="stat-icon" style="background: rgba(99, 102, 241, 0.15); color: #6366f1;">◉</div>
         <div class="stat-info">
           <div class="stat-value">{{ stats.total }}</div>
-          <div class="stat-label">Total Articles</div>
+          <div class="stat-label">文章总数</div>
         </div>
       </div>
       <div class="stat-card">
         <div class="stat-icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">◎</div>
         <div class="stat-info">
           <div class="stat-value">{{ stats.drafts }}</div>
-          <div class="stat-label">Drafts</div>
+          <div class="stat-label">草稿</div>
         </div>
       </div>
       <div class="stat-card">
         <div class="stat-icon" style="background: rgba(34, 197, 94, 0.15); color: #22c55e;">✓</div>
         <div class="stat-info">
           <div class="stat-value">{{ stats.published }}</div>
-          <div class="stat-label">Published</div>
+          <div class="stat-label">已发布</div>
         </div>
       </div>
     </section>
 
     <!-- Features -->
     <section class="features-section">
-      <h2 class="section-title">Features</h2>
+      <h2 class="section-title">功能</h2>
       <div class="features-grid">
         <div 
           v-for="f in features" 
@@ -128,16 +155,17 @@ Thanks for reading!</pre>
 
     <!-- Recent Activity -->
     <section class="activity-section">
-      <h2 class="section-title">Recent Activity</h2>
+      <h2 class="section-title">最近活动</h2>
       <div class="activity-card">
-        <div v-if="loading" class="loading">Loading...</div>
+        <div v-if="loading" class="loading">加载中...</div>
+        <div v-else-if="recentLogs.length === 0" class="empty">暂无活动</div>
         <div v-else-if="recentLogs.length === 0" class="empty">No recent activity</div>
         <div v-else class="activity-list">
           <div v-for="log in recentLogs" :key="log.id" class="activity-item">
             <div class="activity-info">
               <span class="activity-id">#{{ log.article_id }}</span>
               <span :class="['activity-mode', log.mode]">
-                {{ log.mode === 'draft' ? '📝 Draft' : '📤 Published' }}
+                {{ log.mode === 'draft' ? '📝 草稿' : '📤 已发布' }}
               </span>
             </div>
             <span class="activity-time">{{ formatTime(log.published_at) }}</span>

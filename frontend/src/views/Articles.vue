@@ -6,6 +6,9 @@ const loading = ref(true)
 const publishing = ref(null)
 
 const statusMap = {
+  draft: { label: '草稿', class: 'draft' },
+  published: { label: '已发布', class: 'published' }
+}
   draft: { label: 'Draft', class: 'draft' },
   published: { label: 'Published', class: 'published' }
 }
@@ -20,14 +23,14 @@ const loadArticles = async () => {
     const res = await window.$api.get('/api/articles')
     articles.value = res.data || []
   } catch (e) {
-    console.error('Load failed:', e)
+    console.error('加载失败:', e)
   } finally {
     loading.value = false
   }
 }
 
 const publishArticle = async (id) => {
-  if (!confirm('Publish this article?')) return
+  if (!confirm('确定发布这篇文章?')) return
   
   publishing.value = id
   try {
@@ -37,26 +40,26 @@ const publishArticle = async (id) => {
     })
     
     if (res.data.error) {
-      alert('Publish failed: ' + res.data.error)
+      alert('发布失败: ' + res.data.error)
     } else {
-      alert('Published!')
+      alert('发布成功!')
       await loadArticles()
     }
   } catch (e) {
-    alert('Publish failed: ' + e.message)
+    alert('发布失败: ' + e.message)
   } finally {
     publishing.value = null
   }
 }
 
 const deleteArticle = async (id) => {
-  if (!confirm('Delete this article?')) return
+  if (!confirm('确定删除这篇文章?')) return
   
   try {
     await window.$api.delete(`/api/articles/${id}`)
     await loadArticles()
   } catch (e) {
-    alert('Delete failed: ' + e.message)
+    alert('删除失败: ' + e.message)
   }
 }
 
@@ -70,29 +73,35 @@ const formatTime = (time) => {
   <div class="articles-page">
     <div class="page-header">
       <div>
-        <h1 class="page-title">Articles</h1>
+        <h1 class="page-title">文章</h1>
+        <p class="page-desc">管理您的发布内容</p>
         <p class="page-desc">Manage your published content</p>
       </div>
       <button class="btn-primary" @click="$router.push('/generate')">
-        <span>◈</span> New Article
+        <span>◈</span> 新建文章
       </button>
     </div>
 
     <div class="articles-card">
-      <div v-if="loading" class="loading">Loading...</div>
+      <div v-if="loading" class="loading">加载中...</div>
       
       <div v-else-if="articles.length === 0" class="empty">
         <div class="empty-icon">◎</div>
-        <p>No articles yet</p>
+        <p>暂无文章</p>
         <button class="btn-primary" @click="$router.push('/generate')">
-          Create your first article
+          创建第一篇文章
         </button>
       </div>
       
       <table v-else class="articles-table">
         <thead>
           <tr>
-            <th>Title</th>
+            <th>标题</th>
+            <th>作者</th>
+            <th>分类</th>
+            <th>状态</th>
+            <th>更新时间</th>
+            <th>操作</th>
             <th>Author</th>
             <th>Category</th>
             <th>Status</th>
@@ -122,13 +131,13 @@ const formatTime = (time) => {
                   :disabled="publishing === article.id || article.status === 'published'"
                   @click="publishArticle(article.id)"
                 >
-                  {{ publishing === article.id ? '...' : 'Publish' }}
+                  {{ publishing === article.id ? '...' : '发布' }}
                 </button>
                 <button 
                   class="btn-delete"
                   @click="deleteArticle(article.id)"
                 >
-                  Delete
+                  删除
                 </button>
               </div>
             </td>

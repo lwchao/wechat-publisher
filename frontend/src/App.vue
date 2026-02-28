@@ -5,6 +5,10 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 
 const navItems = [
+  { path: '/', label: '首页', icon: '⬡' },
+  { path: '/articles', label: '文章', icon: '◎' },
+  { path: '/generate', label: '生成', icon: '◈' },
+]
   { path: '/', label: 'Home', icon: '⬡' },
   { path: '/articles', label: 'Articles', icon: '◎' },
   { path: '/generate', label: 'Generate', icon: '◈' },
@@ -53,7 +57,7 @@ const navItems = [
 
     <!-- Footer -->
     <footer class="footer">
-      <p>WeChat Publisher © 2026 — Open source AI-powered publishing tool</p>
+      <p>WeChat Publisher © 2026 — 开源 AI 写作助手</p>
     </footer>
   </div>
 </template>
