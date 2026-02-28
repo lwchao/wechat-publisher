@@ -10,15 +10,6 @@ const navItems = [
   { path: '/generate', label: '生成', icon: '◈' },
 ]
 </script>
-  { path: '/', label: '首页', icon: '⬡' },
-  { path: '/articles', label: '文章', icon: '◎' },
-  { path: '/generate', label: '生成', icon: '◈' },
-]
-  { path: '/', label: 'Home', icon: '⬡' },
-  { path: '/articles', label: 'Articles', icon: '◎' },
-  { path: '/generate', label: 'Generate', icon: '◈' },
-]
-</script>
 
 <template>
   <div class="app">
