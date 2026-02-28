@@ -4,8 +4,8 @@ import { ref, reactive } from 'vue'
 const form = reactive({
   keyword: '',
   title: '',
-  style: '技术文章',
-  length: '中等',
+  style: 'Technical Article',
+  length: 'Medium',
   model: 'glm'
 })
 
@@ -13,21 +13,21 @@ const generating = ref(false)
 const result = ref('')
 const showResult = ref(false)
 
-const styles = ['技术文章', '科普', '生活', '商业']
+const styles = ['Technical Article', 'Blog Post', 'News', 'Tutorial']
 const lengths = [
-  { value: '短', label: '短 (500-800字)' },
-  { value: '中等', label: '中等 (1000-1500字)' },
-  { value: '长', label: '长 (2000-3000字)' }
+  { value: 'Short', label: 'Short (500-800 words)' },
+  { value: 'Medium', label: 'Medium (1000-1500 words)' },
+  { value: 'Long', label: 'Long (2000-3000 words)' }
 ]
 const models = [
-  { value: 'glm', label: '智谱 GLM' },
-  { value: 'minimax', label: 'MiniMax' },
-  { value: 'qwen', label: '通义千问' }
+  { value: 'glm', label: 'GLM (Zhipu)', color: '#6366f1' },
+  { value: 'qwen', label: 'Qwen (Alibaba)', color: '#f59e0b' },
+  { value: 'minimax', label: 'MiniMax', color: '#22c55e' }
 ]
 
 const handleSubmit = async () => {
   if (!form.keyword) {
-    alert('请输入关键词')
+    alert('Please enter a keyword')
     return
   }
   
@@ -44,13 +44,13 @@ const handleSubmit = async () => {
     })
     
     if (res.data.error) {
-      alert('生成失败: ' + res.data.error)
+      alert('Generation failed: ' + res.data.error)
     } else {
       result.value = res.data.content
       showResult.value = true
     }
   } catch (e) {
-    alert('生成失败: ' + e.message)
+    alert('Generation failed: ' + e.message)
   } finally {
     generating.value = false
   }
@@ -65,64 +65,65 @@ const saveArticle = async () => {
     })
     
     if (res.data.error) {
-      alert('保存失败: ' + res.data.error)
+      alert('Save failed: ' + res.data.error)
     } else {
-      alert('保存成功！')
+      alert('Saved!')
       result.value = ''
       showResult.value = false
       form.keyword = ''
       form.title = ''
     }
   } catch (e) {
-    alert('保存失败: ' + e.message)
+    alert('Save failed: ' + e.message)
   }
 }
 
 const copyContent = () => {
   navigator.clipboard.writeText(result.value)
-  alert('已复制到剪贴板')
+  alert('Copied!')
 }
 </script>
 
 <template>
   <div class="generate-page">
     <div class="page-header">
-      <h1>✨ AI 生成文章</h1>
+      <h1 class="page-title">◈ AI Generate</h1>
+      <p class="page-desc">Generate articles with AI</p>
     </div>
 
     <div class="generate-layout">
-      <!-- 表单 -->
+      <!-- Form -->
       <div class="form-card">
         <form @submit.prevent="handleSubmit">
           <div class="form-group">
-            <label>关键词 *</label>
+            <label>Keyword *</label>
             <input 
               v-model="form.keyword"
               type="text" 
-              placeholder="输入文章主题关键词" 
+              placeholder="Enter topic keyword" 
               required
             />
           </div>
 
           <div class="form-group">
-            <label>文章标题（可选）</label>
+            <label>Title (optional)</label>
             <input 
               v-model="form.title"
               type="text" 
-              placeholder="留空则自动生成"
+              placeholder="Custom title"
             />
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label>文章风格</label>
+              <label>Style</label>
               <select v-model="form.style">
                 <option v-for="s in styles" :key="s" :value="s">{{ s }}</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label>文章长度</label>
+              <label>Length</label>
               <select v-model="form.length">
                 <option v-for="l in lengths" :key="l.value" :value="l.value">
                   {{ l.label }}
@@ -132,7 +133,7 @@ const copyContent = () => {
           </div>
 
           <div class="form-group">
-            <label>AI 模型</label>
+            <label>Model</label>
             <div class="model-selector">
               <label 
                 v-for="m in models" 
@@ -155,18 +156,18 @@ const copyContent = () => {
             class="btn-generate"
             :disabled="generating"
           >
-            {{ generating ? '🤔 生成中...' : '✨ 开始生成' }}
+            {{ generating ? '◈ Generating...' : '◈ Generate Article' }}
           </button>
         </form>
       </div>
 
-      <!-- 结果 -->
+      <!-- Result -->
       <div v-if="showResult" class="result-card">
         <div class="result-header">
-          <h2>生成结果</h2>
+          <h2>Generated Article</h2>
           <div class="result-actions">
-            <button class="btn-action" @click="copyContent">📋 复制</button>
-            <button class="btn-action primary" @click="saveArticle">💾 保存</button>
+            <button class="btn-action" @click="copyContent">📋 Copy</button>
+            <button class="btn-action primary" @click="saveArticle">💾 Save</button>
           </div>
         </div>
         <div class="result-content">
@@ -184,10 +185,19 @@ const copyContent = () => {
   gap: 24px;
 }
 
-.page-header h1 {
-  font-size: 24px;
-  font-weight: 600;
-  color: #333;
+.page-header {
+  margin-bottom: 8px;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.page-desc {
+  color: var(--text-secondary);
+  font-size: 14px;
 }
 
 .generate-layout {
@@ -197,12 +207,12 @@ const copyContent = () => {
   align-items: start;
 }
 
-/* 表单卡片 */
+/* Form */
 .form-card {
-  background: white;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 28px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
 .form-group {
@@ -213,26 +223,30 @@ const copyContent = () => {
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
-  color: #333;
-  font-size: 14px;
+  color: var(--text-secondary);
+  font-size: 13px;
 }
 
 .form-group input,
 .form-group select {
   width: 100%;
   padding: 12px 16px;
-  border: 2px solid #e8e8e8;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 14px;
+  color: var(--text);
   transition: all 0.2s ease;
-  background: white;
 }
 
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #07c160;
-  box-shadow: 0 0 0 3px rgba(7, 193, 96, 0.1);
+  border-color: var(--accent);
+}
+
+.form-group input::placeholder {
+  color: var(--text-muted);
 }
 
 .form-row {
@@ -241,10 +255,10 @@ const copyContent = () => {
   gap: 16px;
 }
 
-/* 模型选择 */
+/* Model */
 .model-selector {
   display: flex;
-  gap: 12px;
+  gap: 8px;
 }
 
 .model-option {
@@ -252,12 +266,13 @@ const copyContent = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px;
-  border: 2px solid #e8e8e8;
+  padding: 12px 8px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .model-option input {
@@ -265,25 +280,25 @@ const copyContent = () => {
 }
 
 .model-option:hover {
-  border-color: #07c160;
+  border-color: var(--accent);
 }
 
 .model-option.active {
-  border-color: #07c160;
-  background: #f6ffed;
-  color: #07c160;
+  border-color: var(--accent);
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--accent);
   font-weight: 500;
 }
 
-/* 生成按钮 */
+/* Button */
 .btn-generate {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #722ed1 0%, #531dab 100%);
+  background: var(--gradient);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
+  border-radius: 10px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -291,7 +306,7 @@ const copyContent = () => {
 
 .btn-generate:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(114, 46, 209, 0.3);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
 }
 
 .btn-generate:disabled {
@@ -299,11 +314,11 @@ const copyContent = () => {
   cursor: not-allowed;
 }
 
-/* 结果卡片 */
+/* Result */
 .result-card {
-  background: white;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   overflow: hidden;
 }
 
@@ -312,43 +327,38 @@ const copyContent = () => {
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--border);
 }
 
 .result-header h2 {
   font-size: 16px;
   font-weight: 600;
-  color: #333;
 }
 
 .result-actions {
   display: flex;
-  gap: 12px;
+  gap: 8px;
 }
 
 .btn-action {
-  padding: 8px 16px;
+  padding: 8px 14px;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid #d9d9d9;
-  background: white;
+  border: 1px solid var(--border);
+  background: var(--bg-tertiary);
+  color: var(--text);
 }
 
 .btn-action:hover {
-  border-color: #07c160;
-  color: #07c160;
+  border-color: var(--accent);
 }
 
 .btn-action.primary {
-  background: #07c160;
+  background: var(--accent);
   color: white;
-  border-color: #07c160;
-}
-
-.btn-action.primary:hover {
-  background: #06ad56;
+  border-color: var(--accent);
 }
 
 .result-content {
@@ -360,10 +370,10 @@ const copyContent = () => {
 .result-content pre {
   white-space: pre-wrap;
   word-wrap: break-word;
-  font-family: 'Monaco', 'Menlo', monospace;
-  font-size: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
   line-height: 1.8;
-  color: #333;
+  color: var(--text-secondary);
 }
 
 @media (max-width: 900px) {

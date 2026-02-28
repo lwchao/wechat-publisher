@@ -1,60 +1,49 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 
-const router = useRouter()
 const route = useRoute()
-const currentTime = ref('')
 
 const navItems = [
-  { path: '/', label: '首页', icon: '🏠' },
-  { path: '/articles', label: '文章', icon: '📝' },
-  { path: '/generate', label: 'AI生成', icon: '✨' },
+  { path: '/', label: 'Home', icon: '⬡' },
+  { path: '/articles', label: 'Articles', icon: '◎' },
+  { path: '/generate', label: 'Generate', icon: '◈' },
 ]
-  { path: '/', label: '首页', icon: '🏠' },
-  { path: '/articles', label: '文章', icon: '📝' },
-  { path: '/generate', label: 'AI生成', icon: '✨' },
-  { path: '/git', label: 'Git', icon: '📦' },
-]
-
-onMounted(() => {
-  const updateTime = () => {
-    currentTime.value = new Date().toLocaleString('zh-CN')
-  }
-  updateTime()
-  setInterval(updateTime, 1000)
-})
 </script>
 
 <template>
-  <div class="app-container">
-    <!-- 顶部导航 -->
+  <div class="app">
+    <!-- Header -->
     <header class="header">
-      <div class="header-content">
-        <div class="logo">
-          <span class="logo-icon">📱</span>
-          <span class="logo-text">微信公众号发布工具</span>
-        </div>
+      <div class="header-inner">
+        <a href="/" class="logo">
+          <span class="logo-icon">◉</span>
+          <span class="logo-text">WeChat Publisher</span>
+        </a>
+        
         <nav class="nav">
           <router-link 
             v-for="item in navItems" 
             :key="item.path"
             :to="item.path"
-            class="nav-item"
+            class="nav-link"
             :class="{ active: route.path === item.path }"
           >
             <span class="nav-icon">{{ item.icon }}</span>
-            <span class="nav-label">{{ item.label }}</span>
+            {{ item.label }}
           </router-link>
         </nav>
+        
         <div class="header-right">
-          <span class="time">{{ currentTime }}</span>
+          <a href="https://github.com/lwchao/wechat-publisher" target="_blank" class="github-link">
+            GitHub
+          </a>
         </div>
       </div>
     </header>
 
-    <!-- 主内容 -->
-    <main class="main-content">
+    <!-- Main -->
+    <main class="main">
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
           <component :is="Component" />
@@ -62,32 +51,66 @@ onMounted(() => {
       </router-view>
     </main>
 
-    <!-- 页脚 -->
+    <!-- Footer -->
     <footer class="footer">
-      <p>© 2026 微信公众号发布工具 - Powered by Vue 3 + Flask</p>
+      <p>WeChat Publisher © 2026 — Open source AI-powered publishing tool</p>
     </footer>
   </div>
 </template>
 
-<style scoped>
-.app-container {
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #0d0d0d;
+  --bg-secondary: #161616;
+  --bg-tertiary: #1f1f1f;
+  --border: #2a2a2a;
+  --border-light: #333;
+  --text: #e5e5e5;
+  --text-secondary: #8b8b8b;
+  --text-muted: #666;
+  --accent: #6366f1;
+  --accent-hover: #818cf8;
+  --accent-bg: #1e1b4b;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+}
+
+body {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
 }
 
-/* 头部 */
+/* Header */
 .header {
-  background: linear-gradient(135deg, #07c160 0%, #06ad56 100%);
-  box-shadow: 0 2px 12px rgba(7, 193, 96, 0.3);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   z-index: 100;
+  backdrop-filter: blur(12px);
 }
 
-.header-content {
-  max-width: 1400px;
+.header-inner {
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
   height: 64px;
@@ -100,84 +123,101 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 10px;
+  text-decoration: none;
+  color: var(--text);
 }
 
 .logo-icon {
-  font-size: 28px;
+  font-size: 24px;
+  color: var(--accent);
 }
 
 .logo-text {
   font-size: 18px;
-  font-weight: 600;
-  color: white;
-  letter-spacing: 0.5px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
 }
 
-/* 导航 */
 .nav {
   display: flex;
-  gap: 8px;
+  gap: 4px;
 }
 
-.nav-item {
+.nav-link {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
+  gap: 8px;
+  padding: 10px 16px;
   border-radius: 8px;
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text-secondary);
+  font-size: 14px;
   font-weight: 500;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
-.nav-item:hover {
-  background: rgba(255, 255, 255, 0.15);
-  transform: translateY(-1px);
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-tertiary);
 }
 
-.nav-item.active {
-  background: rgba(255, 255, 255, 0.25);
-  color: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.nav-link.active {
+  color: var(--accent);
+  background: var(--accent-bg);
 }
 
 .nav-icon {
   font-size: 16px;
 }
 
-.nav-label {
-  font-size: 14px;
-}
-
 .header-right {
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
-/* 主内容 */
-.main-content {
+.github-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.github-link:hover {
+  color: var(--text);
+  border-color: var(--border-light);
+  background: var(--bg-tertiary);
+}
+
+/* Main */
+.main {
   flex: 1;
-  max-width: 1400px;
+  max-width: 1200px;
   width: 100%;
   margin: 0 auto;
-  padding: 24px;
+  padding: 40px 24px;
 }
 
-/* 页脚 */
+/* Footer */
 .footer {
+  border-top: 1px solid var(--border);
+  padding: 24px;
   text-align: center;
-  padding: 20px;
-  color: #666;
-  font-size: 13px;
-  background: white;
-  border-top: 1px solid #eee;
 }
 
-/* 过渡动画 */
+.footer p {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* Transitions */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity 0.15s ease;
 }
 
 .fade-enter-from,
@@ -185,8 +225,27 @@ onMounted(() => {
   opacity: 0;
 }
 
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
+
 @media (max-width: 768px) {
-  .header-content {
+  .header-inner {
     padding: 0 16px;
   }
   
@@ -194,16 +253,16 @@ onMounted(() => {
     display: none;
   }
   
-  .nav-label {
-    display: none;
-  }
-  
-  .nav-item {
+  .nav-link {
     padding: 8px 12px;
   }
   
-  .main-content {
-    padding: 16px;
+  .nav-link span:not(.nav-icon) {
+    display: none;
+  }
+  
+  .main {
+    padding: 24px 16px;
   }
 }
 </style>
