@@ -11,9 +11,6 @@ const features = [
   { title: 'AI 写作', desc: '使用 AI 生成文章', icon: '◈', link: '/generate', color: '#6366f1' },
   { title: '文章管理', desc: '管理您的内容', icon: '◎', link: '/articles', color: '#22c55e' },
 ]
-  { title: 'AI Writing', desc: 'Generate articles with AI', icon: '◈', link: '/generate', color: '#6366f1' },
-  { title: 'Article Management', desc: 'Manage your content', icon: '◎', link: '/articles', color: '#22c55e' },
-]
 
 onMounted(async () => {
   try {
@@ -30,7 +27,7 @@ onMounted(async () => {
     }
     recentLogs.value = (logsRes.data || []).slice(0, 5)
   } catch (e) {
-    console.error('Load failed:', e)
+    console.error('加载失败:', e)
   } finally {
     loading.value = false
   }
@@ -38,14 +35,16 @@ onMounted(async () => {
 
 const formatTime = (time) => {
   if (!time) return '-'
-  return new Date(time).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+  return new Date(time).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 </script>
 
 <template>
   <div class="home">
     <!-- Hero -->
-    <h1 class="hero-title">
+    <section class="hero">
+      <div class="hero-content">
+        <h1 class="hero-title">
           更好的文章,<br/>
           <span class="gradient-text">更好的发布</span>
         </h1>
@@ -59,23 +58,6 @@ const formatTime = (time) => {
           </button>
           <button class="btn-secondary" @click="router.push('/articles')">
             <span>◎</span> 查看文章
-          </button>
-        </div>
-      <div class="hero-content">
-        <h1 class="hero-title">
-          Better articles,<br/>
-          <span class="gradient-text">better publishing</span>
-        </h1>
-        <p class="hero-desc">
-          AI-powered WeChat article generation and publishing. 
-          Write, generate, and publish — all in one place.
-        </p>
-        <div class="hero-actions">
-          <button class="btn-primary" @click="router.push('/generate')">
-            <span>◈</span> Start Generating
-          </button>
-          <button class="btn-secondary" @click="router.push('/articles')">
-            <span>◎</span> View Articles
           </button>
         </div>
       </div>
@@ -96,19 +78,6 @@ More engaging content here...
 
 ## 结论
 感谢阅读！</pre>
-        </div>
-      </div>
-    </section>
-        </div>
-
-## Introduction
-Lorem ipsum dolor sit amet...
-
-## Main Content
-More engaging content here...
-
-## Conclusion
-Thanks for reading!</pre>
         </div>
       </div>
     </section>
@@ -163,7 +132,6 @@ Thanks for reading!</pre>
       <div class="activity-card">
         <div v-if="loading" class="loading">加载中...</div>
         <div v-else-if="recentLogs.length === 0" class="empty">暂无活动</div>
-        <div v-else-if="recentLogs.length === 0" class="empty">No recent activity</div>
         <div v-else class="activity-list">
           <div v-for="log in recentLogs" :key="log.id" class="activity-item">
             <div class="activity-info">
