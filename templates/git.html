@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Git 操作{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Git 状态</h2>
+    <div id="git-status">
+        <p>加载中...</p>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Git 操作</h3>
+    <div class="flex gap-2">
+        <button onclick="gitAdd()" class="btn btn-primary">git add .</button>
+        <button onclick="gitCommit()" class="btn btn-primary">git commit</button>
+        <button onclick="gitPush()" class="btn btn-primary">git push</button>
+    </div>
+</div>
+
+<div class="card">
+    <h3>提交历史</h3>
+    <div id="git-log">
+        <p>加载中...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function loadStatus() {
+    const status = await api('/api/git/status');
+    
+    if (status.error) {
+        document.getElementById('git-status').innerHTML = '<p>错误: ' + status.error + '</p>';
+        return;
+    }
+    
+    const branch = status.branch || 'unknown';
+    const clean = status.clean ? '是' : '否';
+    const files = status.files || [];
+    
+    let filesHtml = '';
+    if (files.length > 0) {
+        filesHtml = '<ul>' + files.map(f => `<li>${f.status} ${f.file}</li>`).join('') + '</ul>';
+    } else {
+        filesHtml = '<p>没有更改</p>';
+    }
+    
+    document.getElementById('git-status').innerHTML = `
+        <p>分支: ${branch}</p>
+        <p>清洁: ${clean}</p>
+        ${filesHtml}
+    `;
+}
+
+async function loadLog() {
+    const log = await api('/api/git/log?limit=10');
+    
+    if (log.error) {
+        document.getElementById('git-log').innerHTML = '<p>错误: ' + log.error + '</p>';
+        return;
+    }
+    
+    if (log.length === 0) {
+        document.getElementById('git-log').innerHTML = '<p>没有提交记录</p>';
+        return;
+    }
+    
+    const html = log.map(c => `<div class="log-item"><span>${c.hash}</span> <span>${c.message}</span> <span>${c.author}</span></div>`).join('');
+    document.getElementById('git-log').innerHTML = html;
+}
+
+async function gitAdd() {
+    const result = await api('/api/git/add', { method: 'POST' });
+    alert(result.success ? 'git add 成功' : '失败: ' + result.error);
+    loadStatus();
+}
+
+async function gitCommit() {
+    const message = prompt('提交信息:');
+    if (!message) return;
+    
+    const result = await api('/api/git/commit', {
+        method: 'POST',
+        body: JSON.stringify({ message })
+    });
+    alert(result.success ? '提交成功' : '失败: ' + result.error);
+    loadStatus();
+    loadLog();
+}
+
+async function gitPush() {
+    const result = await api('/api/git/push', { method: 'POST' });
+    alert(result.success ? '推送成功' : '失败: ' + result.error);
+}
+
+loadStatus();
+loadLog();
+</script>
+{% endblock %}

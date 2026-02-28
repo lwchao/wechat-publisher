@@ -1,0 +1,42 @@
+wechat:
+  appid: "wxb6a28f69b7c19f2b"
+  secret: "8296daaff915ebe8ebcab758c6884499"
+  default_cover_media_id: "g6GCsS0f0yofvdaCeq9RcKPeCU8mPkhDVg9-gIgu9UeRMXgW0bm87C1s0j_N4n78"
+
+articles_dir: "./articles"
+
+publish:
+  draft_mode: true
+  max_retries: 3
+
+ai:
+  default_model: glm
+  glm:
+    api_key: ""
+    base_url: ""
+  minimax:
+    api_key: ""
+    base_url: ""
+  qwen:
+    api_key: ""
+    base_url: ""
+
+webhook:
+  enabled: true
+  github_secret: ""
+  auto_publish_on_push: false
+
+schedule:
+  enabled: false
+  mode: cron
+  cron: "0 9 * * *"
+  delay_minutes: 30
+  auto_publish: false
+
+git:
+  auto_commit: true
+  auto_push: true
+  commit_message_template: "Update: {date}"
+  auto_commit: false
+  auto_push: false
+  commit_message_template: "Update: {date}"

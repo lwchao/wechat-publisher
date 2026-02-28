@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}文章管理{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="flex justify-between items-center">
+        <h2>文章列表</h2>
+        <div>
+            <a href="/generate" class="btn btn-primary">AI 生成</a>
+        </div>
+    </div>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>标题</th>
+                <th>作者</th>
+                <th>分类</th>
+                <th>状态</th>
+                <th>更新时间</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="articles-list">
+            <tr><td colspan="6">加载中...</td></tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function loadArticles() {
+    const articles = await api('/api/articles');
+    
+    if (articles.length === 0) {
+        document.getElementById('articles-list').innerHTML = 
+            '<tr><td colspan="6" class="text-center">暂无文章</td></tr>';
+        return;
+    }
+    
+    const html = articles.map(article => `
+        <tr>
+            <td>${article.title}</td>
+            <td>${article.author}</td>
+            <td>${article.category}</td>
+            <td><span class="status-${article.status}">${article.status === 'draft' ? '草稿' : '已发布'}</span></td>
+            <td>${new Date(article.updated_at).toLocaleString()}</td>
+            <td>
+                <button onclick="publishArticle(${article.id})" class="btn btn-primary">发布</button>
+                <button onclick="deleteArticle(${article.id})" class="btn" style="color: red;">删除</button>
+            </td>
+        </tr>
+    `).join('');
+    
+    document.getElementById('articles-list').innerHTML = html;
+}
+
+async function publishArticle(id) {
+    if (!confirm('确定要发布这篇文章吗？')) return;
+    
+    const result = await api('/api/publish', {
+        method: 'POST',
+        body: JSON.stringify({ article_id: id, draft_mode: false })
+    });
+    
+    if (result.error) {
+        alert('发布失败: ' + result.error);
+    } else {
+        alert('发布成功!');
+        loadArticles();
+    }
+}
+
+async function deleteArticle(id) {
+    if (!confirm('确定要删除这篇文章吗？')) return;
+    
+    await api(`/api/articles/${id}`, { method: 'DELETE' });
+    loadArticles();
+}
+
+loadArticles();
+</script>
+{% endblock %}

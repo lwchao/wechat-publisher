@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}AI 生成{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>AI 生成文章</h2>
+    
+    <form id="generate-form">
+        <div class="form-group">
+            <label>关键词</label>
+            <input type="text" name="keyword" placeholder="输入文章主题关键词" required>
+        </div>
+        
+        <div class="form-group">
+            <label>文章标题（可选）</label>
+            <input type="text" name="title" placeholder="留空则自动生成">
+        </div>
+        
+        <div class="form-group">
+            <label>文章风格</label>
+            <select name="style">
+                <option value="技术文章">技术文章</option>
+                <option value="科普">科普</option>
+                <option value="生活">生活</option>
+                <option value="商业">商业</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>文章长度</label>
+            <select name="length">
+                <option value="短">短 (500-800字)</option>
+                <option value="中等" selected>中等 (1000-1500字)</option>
+                <option value="长">长 (2000-3000字)</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>AI 模型</label>
+            <select name="model">
+                <option value="glm">智谱 GLM</option>
+                <option value="minimax">MiniMax</option>
+                <option value="qwen">通义千问</option>
+            </select>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">生成文章</button>
+    </form>
+    
+    <div id="result" class="hidden" style="margin-top: 20px;">
+        <h3>生成结果</h3>
+        <pre id="article-content" class="markdown-body" style="white-space: pre-wrap; background: #f5f5f5; padding: 10px; border-radius: 4px; max-height: 400px; overflow-y: auto;"></pre>
+        
+        <div class="flex gap-2 mt-4">
+            <button onclick="saveArticle()" class="btn btn-primary">保存到文章</button>
+            <button onclick="copyContent()" class="btn">复制内容</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let generatedContent = '';
+
+document.getElementById('generate-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const form = e.target;
+    const data = {
+        keyword: form.keyword.value,
+        title: form.title.value,
+        style: form.style.value,
+        length: form.length.value,
+        model: form.model.value,
+    };
+    
+    const btn = form.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = '生成中...';
+    
+    try {
+        const result = await api('/api/ai/generate', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+        
+        if (result.error) {
+            alert('生成失败: ' + result.error);
+        } else {
+            generatedContent = result.content;
+            document.getElementById('article-content').textContent = result.content;
+            document.getElementById('result').classList.remove('hidden');
+        }
+    } catch (err) {
+        alert('生成失败: ' + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '生成文章';
+    }
+});
+
+async function saveArticle() {
+    const result = await api('/api/ai/save', {
+        method: 'POST',
+        body: JSON.stringify({
+            content: generatedContent,
+            keyword: document.querySelector('input[name="keyword"]').value,
+        })
+    });
+    
+    if (result.error) {
+        alert('保存失败: ' + result.error);
+    } else {
+        alert('保存成功！');
+        window.location.href = '/articles';
+    }
+}
+
+function copyContent() {
+    navigator.clipboard.writeText(generatedContent);
+    alert('已复制到剪贴板');
+}
+</script>
+{% endblock %}

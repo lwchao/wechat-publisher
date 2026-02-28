@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}文章编辑{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>文章编辑</h2>
+    
+    <form id="article-form">
+        <div class="form-group">
+            <label>标题</label>
+            <input type="text" name="title" required>
+        </div>
+        
+        <div class="form-group">
+            <label>作者</label>
+            <input type="text" name="author" value="匿名">
+        </div>
+        
+        <div class="form-group">
+            <label>分类</label>
+            <input type="text" name="category" value="未分类">
+        </div>
+        
+        <div class="form-group">
+            <label>摘要</label>
+            <input type="text" name="summary">
+        </div>
+        
+        <div class="form-group">
+            <label>正文 (Markdown)</label>
+            <textarea name="content" required></textarea>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">保存</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+
+document.getElementById('article-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const data = {
+        title: form.title.value,
+        author: form.author.value,
+        category: form.category.value,
+        summary: form.summary.value,
+        content: form.content.value,
+    };
+    
+    await api('/api/articles', {
+        method: 'POST',
+        body: JSON.stringify(data)
+    });
+    
+    alert('保存成功');
+    window.location.href = '/articles';
+});
+</script>
+{% endblock %}
