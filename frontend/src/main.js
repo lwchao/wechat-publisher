@@ -27,5 +27,8 @@ const router = createRouter({
 
 const app = createApp(App)
 app.config.globalProperties.$api = api
+window.$api = api
+app.use(router)
+app.config.globalProperties.$api = api
 app.use(router)
 app.mount('#app')
