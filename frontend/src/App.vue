@@ -238,16 +238,10 @@ body {
 ::-webkit-scrollbar-thumb {
   background: var(--border-light);
   border-radius: 4px;
-#TK|
-#TM|::-webkit-scrollbar-thumb:hover {
-#WY|  background: #9ca3af;
-#PP|}
-#HB|
+}
 
 ::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
-}
-  background: #444;
 }
 
 @media (max-width: 768px) {
