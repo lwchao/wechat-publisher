@@ -1,14 +1,20 @@
 """发布 API"""
-import os, yaml, requests, json, re
+import os
+import yaml
+import requests
+import json
+import re
 from flask import Blueprint, request, jsonify
 from models import get_article_by_id, create_publish_log, update_article, get_publish_logs
 from git_helper import GitHelper
 
 publish_bp = Blueprint('publish', __name__)
 
+
 def load_config():
     with open(os.environ.get('CONFIG_PATH', 'config.yaml'), 'r') as f:
         return yaml.safe_load(f)
+
 
 def get_access_token(appid, secret):
     url = "https://api.weixin.qq.com/cgi-bin/token"
@@ -16,6 +22,7 @@ def get_access_token(appid, secret):
     if "access_token" in resp:
         return resp["access_token"]
     raise Exception(f"获取token失败: {resp}")
+
 
 def markdown_to_wechat(md_content):
     html = md_content
@@ -30,6 +37,7 @@ def markdown_to_wechat(md_content):
     html = html.replace("\n\n", "</p><p>")
     return f"<p>{html}</p>"
 
+
 def publish_to_wechat(article, draft_mode=True):
     config = load_config()
     appid, secret = config.get('wechat', {}).get('appid'), config.get('wechat', {}).get('secret')
@@ -38,21 +46,32 @@ def publish_to_wechat(article, draft_mode=True):
     content_html = markdown_to_wechat(article['content'])
     thumb_media_id = article.get('cover_media_id') or default_cover
     article_data = {
-        "title": article['title'][:20], "author": article.get('author', '匿名')[:5],
-        "content": content_html[:20000], "digest": article.get('summary', '')[:20],
-        "content_source_url": "", "thumb_media_id": thumb_media_id,
-        "pic_crop_235_1": "0_0_1_1", "pic_crop_1_1": "0_0_1_1"
+        "title": article['title'][:20], 
+        "author": article.get('author', '匿名')[:5],
+        "content": content_html[:20000], 
+        "digest": article.get('summary', '')[:20],
+        "content_source_url": "", 
+        "thumb_media_id": thumb_media_id,
+        "pic_crop_235_1": "0_0_1_1", 
+        "pic_crop_1_1": "0_0_1_1"
     }
     url = f"https://api.weixin.qq.com/cgi-bin/draft/add?access_token={access_token}"
-    resp = requests.post(url, data=json.dumps({"articles": [article_data]}, ensure_ascii=False).encode('utf-8'),
-                         headers={'Content-Type': 'application/json; charset=utf-8'}).json()
+    resp = requests.post(url, json={"articles": [article_data]}).json()
+    
     if "media_id" not in resp:
-        raise Exception(f"创建草稿失败: {resp}")
+        err_msg = resp.get('errmsg', str(resp))
+        raise Exception(f"创建草稿失败: {err_msg}")
+    
     media_id = resp["media_id"]
+    
     if not draft_mode:
         publish_url = f"https://api.weixin.qq.com/cgi-bin/freepublish/submit?access_token={access_token}"
-        requests.post(publish_url, json={"media_id": media_id}).json()
+        pub_resp = requests.post(publish_url, json={"media_id": media_id}).json()
+        if pub_resp.get('errcode', 0) != 0:
+            raise Exception(f"发布失败: {pub_resp.get('errmsg', str(pub_resp))}")
+    
     return media_id
+
 
 @publish_bp.route('/publish', methods=['POST'])
 def publish():
@@ -60,13 +79,19 @@ def publish():
     article_id = data.get('article_id')
     draft_mode = data.get('draft_mode', True)
     article = get_article_by_id(article_id)
+    
     if not article:
         return jsonify({'error': '文章不存在'}), 404
+    
     try:
         media_id = publish_to_wechat({
-            'title': article.title, 'author': article.author, 'summary': article.summary,
-            'content': article.content, 'cover_media_id': article.cover_image,
+            'title': article.title, 
+            'author': article.author, 
+            'summary': article.summary,
+            'content': article.content, 
+            'cover_media_id': article.cover_image,
         }, draft_mode)
+        
         create_publish_log(article_id, 'draft' if draft_mode else 'publish', media_id, '成功')
         update_article(article_id, {'status': 'published'})
         
@@ -86,17 +111,20 @@ def publish():
                 print(f"自动提交失败: {e}")
         
         return jsonify({'message': '发布成功', 'media_id': media_id})
-        update_article(article_id, {'status': 'published'})
-        return jsonify({'message': '发布成功', 'media_id': media_id})
+    
     except Exception as e:
         create_publish_log(article_id, 'draft', '', str(e))
         return jsonify({'error': str(e)}), 500
+
 
 @publish_bp.route('/publish/logs', methods=['GET'])
 def get_logs():
     logs = get_publish_logs()
     return jsonify([{
-        'id': log.id, 'article_id': log.article_id, 'mode': log.mode,
-        'wechat_media_id': log.wechat_media_id, 'result': log.result,
+        'id': log.id, 
+        'article_id': log.article_id, 
+        'mode': log.mode,
+        'wechat_media_id': log.wechat_media_id, 
+        'result': log.result,
         'published_at': log.published_at.isoformat() if log.published_at else None,
     } for log in logs])
