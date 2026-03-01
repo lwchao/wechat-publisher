@@ -1,7 +1,7 @@
 wechat:
   appid: "wxb6a28f69b7c19f2b"
   secret: "8296daaff915ebe8ebcab758c6884499"
-  default_cover_media_id: "g6GCsS0f0yofvdaCeq9RcKPeCU8mPkhDVg9-gIgu9UeRMXgW0bm87C1s0j_N4n78"
+  default_cover_media_id: "g6GCsS0f0yofvdaCeq9RcKPfkZ-Mi_QK9WyrWlIUU7vSimuwlpNAbvsfavIIhUxK"
 
 articles_dir: "./articles"
 
