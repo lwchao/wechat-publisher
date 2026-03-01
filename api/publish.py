@@ -24,6 +24,58 @@ def get_access_token(appid, secret):
     raise Exception(f"获取token失败: {resp}")
 
 
+def upload_cover(access_token):
+    """每次发布时上传新封面图片"""
+    # 图片URL列表
+    img_urls = [
+        "https://picsum.photos/900/500",
+        "https://picsum.photos/1200/675",
+    ]
+    
+    for img_url in img_urls:
+        try:
+            img_resp = requests.get(img_url, timeout=10, allow_redirects=True)
+            if img_resp.status_code != 200 or len(img_resp.content) < 5000:
+                continue
+            
+            # 上传到微信
+            upload_url = f"https://api.weixin.qq.com/cgi-bin/material/add_material?access_token={access_token}&type=image"
+            files = {'media': ('cover.jpg', img_resp.content, 'image/jpeg')}
+            resp = requests.post(upload_url, files=files, timeout=30).json()
+            
+            if 'media_id' in resp:
+                return resp['media_id']
+        except:
+            continue
+    
+    # 如果都失败，抛出异常
+    raise Exception("上传封面失败: 无法下载图片")
+    """每次发布时上传新封面图片 (使用直接URL避免重定向问题)"""
+    # 使用picsum的直接图片URL
+    img_urls = [
+        "https://fastly.picsum.photos/id/904/900/500.jpg?hmac=14zM3VjEmgFb7Gfsw5_mIyrnvXmQ20nn1TmW7_R_W2c",
+        "https://picsum.photos/900/500",
+    ]
+    
+    for img_url in img_urls:
+        try:
+            img_resp = requests.get(img_url, timeout=15, allow_redirects=True)
+            if img_resp.status_code != 200 or len(img_resp.content) < 1000:
+                continue
+            
+            # 上传到微信
+            upload_url = f"https://api.weixin.qq.com/cgi-bin/material/add_material?access_token={access_token}&type=image"
+            files = {'media': ('cover.jpg', img_resp.content, 'image/jpeg')}
+            resp = requests.post(upload_url, files=files, timeout=30).json()
+            
+            if 'media_id' in resp:
+                return resp['media_id']
+        except:
+            continue
+    
+    raise Exception("上传封面失败: 无法下载图片")
+
+
 def markdown_to_wechat(md_content):
     html = md_content
     html = re.sub(r'```(\w*)\n(.*?)```', r'<pre>\2</pre>', html, flags=re.DOTALL)
@@ -41,10 +93,12 @@ def markdown_to_wechat(md_content):
 def publish_to_wechat(article, draft_mode=True):
     config = load_config()
     appid, secret = config.get('wechat', {}).get('appid'), config.get('wechat', {}).get('secret')
-    default_cover = config.get('wechat', {}).get('default_cover_media_id')
     access_token = get_access_token(appid, secret)
     content_html = markdown_to_wechat(article['content'])
-    thumb_media_id = article.get('cover_media_id') or default_cover
+    
+    # 每次发布时上传新封面
+    thumb_media_id = upload_cover(access_token)
+    
     article_data = {
         "title": article['title'][:20], 
         "author": article.get('author', '匿名')[:5],
