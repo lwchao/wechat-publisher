@@ -4,6 +4,7 @@ import yaml
 import requests
 import json
 import re
+import base64
 from flask import Blueprint, request, jsonify
 from models import get_article_by_id, create_publish_log, update_article, get_publish_logs
 from git_helper import GitHelper
@@ -24,56 +25,43 @@ def get_access_token(appid, secret):
     raise Exception(f"获取token失败: {resp}")
 
 
+# 内嵌的蓝色封面图片 (100x100 JPEG)
+DEFAULT_COVER_BASE64 = "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCABkAGQDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDxyiiiv3E8wKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//Z"
+DEFAULT_COVER_BASE64 = "/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAn/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwAB//2Q=="
+
+
 def upload_cover(access_token):
-    """每次发布时上传新封面图片"""
-    # 图片URL列表
-    img_urls = [
-        "https://picsum.photos/900/500",
-        "https://picsum.photos/1200/675",
-    ]
-    
-    for img_url in img_urls:
-        try:
-            img_resp = requests.get(img_url, timeout=10, allow_redirects=True)
-            if img_resp.status_code != 200 or len(img_resp.content) < 5000:
-                continue
-            
-            # 上传到微信
-            upload_url = f"https://api.weixin.qq.com/cgi-bin/material/add_material?access_token={access_token}&type=image"
-            files = {'media': ('cover.jpg', img_resp.content, 'image/jpeg')}
-            resp = requests.post(upload_url, files=files, timeout=30).json()
-            
-            if 'media_id' in resp:
-                return resp['media_id']
-        except:
-            continue
-    
-    # 如果都失败，抛出异常
-    raise Exception("上传封面失败: 无法下载图片")
-    """每次发布时上传新封面图片 (使用直接URL避免重定向问题)"""
-    # 使用picsum的直接图片URL
-    img_urls = [
-        "https://fastly.picsum.photos/id/904/900/500.jpg?hmac=14zM3VjEmgFb7Gfsw5_mIyrnvXmQ20nn1TmW7_R_W2c",
-        "https://picsum.photos/900/500",
-    ]
-    
-    for img_url in img_urls:
-        try:
-            img_resp = requests.get(img_url, timeout=15, allow_redirects=True)
-            if img_resp.status_code != 200 or len(img_resp.content) < 1000:
-                continue
-            
-            # 上传到微信
-            upload_url = f"https://api.weixin.qq.com/cgi-bin/material/add_material?access_token={access_token}&type=image"
-            files = {'media': ('cover.jpg', img_resp.content, 'image/jpeg')}
-            resp = requests.post(upload_url, files=files, timeout=30).json()
-            
-            if 'media_id' in resp:
-                return resp['media_id']
-        except:
-            continue
-    
-    raise Exception("上传封面失败: 无法下载图片")
+    """上传封面图片"""
+    try:
+        # 读取本地封面图片
+        cover_path = os.path.join(os.path.dirname(__file__), 'cover.jpg')
+        with open(cover_path, 'rb') as f:
+            img_data = f.read()
+        
+        # 上传到微信
+        upload_url = f"https://api.weixin.qq.com/cgi-bin/material/add_material?access_token={access_token}&type=image"
+        files = {'media': ('cover.jpg', img_data, 'image/jpeg')}
+        resp = requests.post(upload_url, files=files, timeout=30).json()
+        
+        if 'media_id' in resp:
+            return resp['media_id']
+        raise Exception(f"上传封面失败: {resp}")
+    except Exception as e:
+        raise Exception(f"上传封面失败: {e}")
+    """上传一个简单的封面图片"""
+    try:
+        img_data = base64.b64decode(DEFAULT_COVER_BASE64)
+        
+        # 上传到微信
+        upload_url = f"https://api.weixin.qq.com/cgi-bin/material/add_material?access_token={access_token}&type=image"
+        files = {'media': ('cover.jpg', img_data, 'image/jpeg')}
+        resp = requests.post(upload_url, files=files, timeout=30).json()
+        
+        if 'media_id' in resp:
+            return resp['media_id']
+        raise Exception(f"上传封面失败: {resp}")
+    except Exception as e:
+        raise Exception(f"上传封面失败: {e}")
 
 
 def markdown_to_wechat(md_content):
@@ -96,7 +84,7 @@ def publish_to_wechat(article, draft_mode=True):
     access_token = get_access_token(appid, secret)
     content_html = markdown_to_wechat(article['content'])
     
-    # 每次发布时上传新封面
+    # 上传封面
     thumb_media_id = upload_cover(access_token)
     
     article_data = {
